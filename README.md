@@ -5,26 +5,23 @@ Przykładowy kod źródłowy pozwalający na:
 * Skonfigurowanie prostych systemów agentowych przy wykorzystaniu [Agent Development Kit](https://google.github.io/adk-docs/)
 * Uruchomienie obu powyższych serwisów na [Cloud Run](https://cloud.google.com/run?hl=en)
 
-## Instrukcja
-
-### Wymagania
-
-*   Komputer z dostępem do internetu
-*   Nowoczesna przeglądarka
-*   Konto Google (np. @gmail.com)
-
-### Kroki
+## Przygotowanie projektu Google Cloud
 
 1. Uzyskaj kredyt Cloud **OnRamp**, lub skonfiguruj płatności w projekcie Google Cloud
 2. Przejdź do **Google Cloud Console**: [console.cloud.google.com](https://console.cloud.google.com)
 3. Stwórz nowy projekt Google Cloud i wybierz go aby był aktywny
 4. Otwórz Cloud Shell ([dokumentacja](https://cloud.google.com/shell/docs))
 5. Sklonuj repozytorium z przykładowym kodem i przejdź do nowoutworzonego katalogu
-
    ```bash
    git clone https://github.com/avedave/eskadra-bielik-misja1
    cd eskadra-bielik-misja1
    ```
+## Własna instancja Bielika
+
+```bash
+gcloud run deploy ollama-bielik-v3 --source ollama-bielik/ --region europe-west1 --concurrency 7 --cpu 8 --set-env-vars OLLAMA_NUM_PARALLEL=4 --gpu 1 --gpu-type nvidia-l4 --max-instances 1 --memory 16Gi --allow-unauthenticated --no-cpu-throttling --no-gpu-zonal-redundancy --timeout 600 --labels dev-tutorial=codelab-dos-bielik
+```
+## Pierwszy agent
 6. Stwórz i aktywuj wirtualne środowisko Python
    
    ```bash
