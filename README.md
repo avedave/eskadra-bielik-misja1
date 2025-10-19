@@ -25,6 +25,12 @@ Przykładowy kod źródłowy pozwalający na:
    `GOOGLE_CLOUD_LOCATION`, domyślną nazwę dla usługi gdzie uruchomimy Bielika `BIELIK_SERVICE_NAME` oraz wersję Bielika z której będziemy korzystać `BIELIK_MODEL_NAME`
    
    ```bash
+   GOOGLE_CLOUD_LOCATION="europe-west1"  # Europe (Belgium)
+   BIELIK_SERVICE_NAME="ollama-bielik-v3"
+   BIELIK_MODEL_NAME="SpeakLeash/bielik-4.5b-v3.0-instruct:Q8_0"
+   ```
+   
+   ```bash
    source reload-env.sh
    ```
 ## Własna instancja Bielika
@@ -38,7 +44,7 @@ gcloud run deploy $BIELIK_SERVICE_NAME --source ollama-bielik/ --region $GOOGLE_
 * Wyślij zapytanie przez API
    ```bash
    curl "${OLLAMA_URL}/api/generate" -d '{
-      "model": "SpeakLeash/bielik-4.5b-v3.0-instruct:Q8_0",
+      "model": $BIELIK_MODEL_NAME,
       "prompt": "Kto zabił smoka wawelskiego?",
       "stream": false
    }'
