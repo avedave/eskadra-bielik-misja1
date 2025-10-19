@@ -16,11 +16,34 @@ Przykładowy kod źródłowy pozwalający na:
    git clone https://github.com/avedave/eskadra-bielik-misja1
    cd eskadra-bielik-misja1
    ```
+6. Zmień nazwę pliku `.env.sample` na `.env`
+   ```bash
+   mv .env.sample .env
+   ```
+7. Zaktualizuj potrzebne zmienne środowiskowe
+   Na tym etapie `.env` zawiera tylko zmienną definiującą region Google Cloud:
+   `GOOGLE_CLOUD_LOCATION`, domyślną nazwę dla usługi gdzie uruchomimy Bielika `BIELIK_SERVICE_NAME` oraz wersję Bielika z której będziemy korzystać `BIELIK_MODEL_NAME`
+   
+   ```bash
+   source reload-env.sh
+   ```
 ## Własna instancja Bielika
 
 ```bash
-gcloud run deploy ollama-bielik-v3 --source ollama-bielik/ --region europe-west1 --concurrency 7 --cpu 8 --set-env-vars OLLAMA_NUM_PARALLEL=4 --gpu 1 --gpu-type nvidia-l4 --max-instances 1 --memory 16Gi --allow-unauthenticated --no-cpu-throttling --no-gpu-zonal-redundancy --timeout 600 --labels dev-tutorial=codelab-dos-bielik
+gcloud run deploy $BIELIK_SERVICE_NAME --source ollama-bielik/ --region $GOOGLE_CLOUD_LOCATION --concurrency 7 --cpu 8 --set-env-vars OLLAMA_NUM_PARALLEL=4 --gpu 1 --gpu-type nvidia-l4 --max-instances 1 --memory 16Gi --allow-unauthenticated --no-cpu-throttling --no-gpu-zonal-redundancy --timeout 600 --labels dev-tutorial=codelab-dos-bielik
 ```
+### Jak sprawdzić, czy usługa działa?
+* Sprawdź w Google  Cloud console czy nowy serwis jest już dostępny
+* Sprawdź czy otwierając URL w przeglądarce zobaczysz informację: `Ollama is running`
+* Wyślij zapytanie przez API
+   ```bash
+   curl "${OLLAMA_URL}/api/generate" -d '{
+      "model": "SpeakLeash/bielik-4.5b-v3.0-instruct:Q8_0",
+      "prompt": "Kto zabił smoka wawelskiego?",
+      "stream": false
+   }'
+   ```
+
 ## Pierwszy agent
 6. Stwórz i aktywuj wirtualne środowisko Python
    
@@ -35,10 +58,6 @@ gcloud run deploy ollama-bielik-v3 --source ollama-bielik/ --region europe-west1
    ```
 8. Skonfiguruj swój własny klucz Gemini API
    *   Stwórz lub skopiuj istniejący Gemini API key z [Google AI Studio](https://ai.dev).
-   *   Skopiuj zawartość pliku `.env.sample` do nowego pliku `.env`
-   	```bash
-   	cp .env.sample .env
-   	```
    *   Dodaj wartość klucza ze swojego Gemini API key jako wartość zmiennej `GOOGLE_API_KEY` w pliku `.env`
 9. Uruchom agenta w konsoli **Cloud Shell**:
 	
