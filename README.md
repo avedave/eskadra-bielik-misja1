@@ -39,8 +39,8 @@ Przykładowy kod źródłowy pozwalający na:
 8. Skonfiguruj swój własny klucz Gemini API
    *   Stwórz lub skopiuj istniejący Gemini API key z [Google AI Studio](https://ai.dev).
    *   Skopiuj zawartość pliku `.env.sample` do nowego pliku `.env`
-		```bash
-		cp .env.sample .env
+   	```bash
+   	cp .env.sample .env
    	```
    *   Dodaj wartość klucza ze swojego Gemini API key jako wartość zmiennej `GOOGLE_API_KEY` w pliku `.env`
 9. Uruchom agenta w konsoli **Cloud Shell**:
