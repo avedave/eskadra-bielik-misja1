@@ -63,14 +63,20 @@ gcloud run deploy $BIELIK_SERVICE_NAME --source ollama-bielik/ --region $GOOGLE_
    ```
 
 ## Pierwszy agent
-6. Stwórz i aktywuj wirtualne środowisko Python
-   
+
+1. Przejdź do katalogu z agentami
+
+   ```bash
+   cd adk-agents
+   ```
+2. Stwórz i aktywuj wirtualne środowisko Python
+
    ```bash
    python -m venv .venv
    source .venv/bin/activate
    ```
 7. Zainstaluj wymagane komponenty
-   
+
    ```bash
    pip install -r requirements.txt
    ```
@@ -78,17 +84,17 @@ gcloud run deploy $BIELIK_SERVICE_NAME --source ollama-bielik/ --region $GOOGLE_
    *   Stwórz lub skopiuj istniejący Gemini API key z [Google AI Studio](https://ai.dev).
    *   Dodaj wartość klucza ze swojego Gemini API key jako wartość zmiennej `GOOGLE_API_KEY` w pliku `.env`
 9. Uruchom agenta w konsoli **Cloud Shell**:
-	
+
    ```bash
-	 adk run content_creator
-	```
-10.  Przetestuj agenta w środowisku Web
-	1. Uruchom środowisko ADK Web
-	```bash
-	adk web
-	```
-	2. Zmień port w **Web View** (jeżeli potrzeba, zazwyczaj jest to port 8000)
-	3. Zaakceptuj zmiany poprzez: *Change and Preview*
+    adk run content_creator
+   ```
+10. Przetestuj agenta w środowisku Web
+    1. Uruchom środowisko ADK Web
+    ```bash
+    adk web
+    ```
+    2. Zmień port w **Web View** (jeżeli potrzeba, zazwyczaj jest to port 8000)
+    3. Zaakceptuj zmiany poprzez: *Change and Preview*
 
 11. Deploy to Cloud Run:
     ```bash
