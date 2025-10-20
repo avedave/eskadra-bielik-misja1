@@ -46,16 +46,27 @@ Przykładowy kod źródłowy pozwalający na:
 ```bash
 gcloud run deploy $BIELIK_SERVICE_NAME --source ollama-bielik/ --region $GOOGLE_CLOUD_LOCATION --concurrency 7 --cpu 8 --set-env-vars OLLAMA_NUM_PARALLEL=4 --gpu 1 --gpu-type nvidia-l4 --max-instances 1 --memory 16Gi --allow-unauthenticated --no-cpu-throttling --no-gpu-zonal-redundancy --timeout 600 --labels dev-tutorial=codelab-dos-bielik
 ```
+
+Uruchom poniższą komendę, aby sprawdzić pod jakim URL jest dostępny Bielik
+```bash
+gcloud run services describe $BIELIK_SERVICE_NAME --region=$GOOGLE_CLOUD_LOCATION --format='value(status.url)'
+```
+
+Przypisz powyższy URL do zmiennej środowiskowej `OLLAMA_API_BASE` w pliku `.env` i następnie wczytaj zmienne środowiskowe ponownie:
+ ```bash
+   source reload-env.sh
+   ```
+
 ### Jak sprawdzić, czy usługa działa?
 * Sprawdź w Google  Cloud console czy nowy serwis jest już dostępny
 * Sprawdź czy otwierając URL w przeglądarce zobaczysz informację: `Ollama is running`
 * Sprawdź przez API jakie modele są dostępne lokalnie na serwerze Ollama
    ```bash
-   curl "${OLLAMA_URL}/api/tags"
+   curl "${OLLAMA_API_BASE}/api/tags"
    ```
 * Wyślij zapytanie przez API
    ```bash
-   curl "${OLLAMA_URL}/api/generate" -d "{
+   curl "${OLLAMA_API_BASE}/api/generate" -d "{
       \"model\": \"$BIELIK_MODEL_NAME\",
       \"prompt\": \"Kto zabił smoka wawelskiego?\",
       \"stream\": false
@@ -69,25 +80,26 @@ gcloud run deploy $BIELIK_SERVICE_NAME --source ollama-bielik/ --region $GOOGLE_
    ```bash
    cd adk-agents
    ```
+   
 2. Stwórz i aktywuj wirtualne środowisko Python
 
    ```bash
    python -m venv .venv
    source .venv/bin/activate
    ```
+   
 7. Zainstaluj wymagane komponenty
 
    ```bash
    pip install -r requirements.txt
    ```
-8. Skonfiguruj swój własny klucz Gemini API
-   *   Stwórz lub skopiuj istniejący Gemini API key z [Google AI Studio](https://ai.dev).
-   *   Dodaj wartość klucza ze swojego Gemini API key jako wartość zmiennej `GOOGLE_API_KEY` w pliku `.env`
+   
 9. Uruchom agenta w konsoli **Cloud Shell**:
 
    ```bash
     adk run content_creator
    ```
+   
 10. Przetestuj agenta w środowisku Web
     1. Uruchom środowisko ADK Web
     ```bash
@@ -100,5 +112,12 @@ gcloud run deploy $BIELIK_SERVICE_NAME --source ollama-bielik/ --region $GOOGLE_
     ```bash
     gcloud run deploy multi-tool-agent --source . --region europe-west1 --allow-unauthenticated --set-env-vars="GOOGLE_GENAI_USE_VERTEXAI=FALSE, GOOGLE_API_KEY="  --labels dev-tutorial=codelab-dos
     ```
+
+## Agenci wielo-modelowi
+
+Skonfiguruj swój własny klucz Gemini API
+
+*   Stwórz lub skopiuj istniejący Gemini API key z [Google AI Studio](https://ai.dev).
+*   Dodaj wartość klucza ze swojego Gemini API key jako wartość zmiennej `GOOGLE_API_KEY` w pliku `.env`
 
 Deployment documentation: https://google.github.io/adk-docs/deploy/cloud-run/#python---gcloud-cli
