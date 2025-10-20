@@ -20,8 +20,8 @@ Przykładowy kod źródłowy pozwalający na:
    ```bash
    mv .env.sample .env
    ```
-7. Zaktualizuj potrzebne zmienne środowiskowe
-   Na tym etapie `.env` zawiera tylko zmienną definiującą region Google Cloud:
+7. Zaktualizuj potrzebne zmienne środowiskowe w pliku `.env`
+   Na tym etapie `.env` zawiera: zmienną definiującą region Google Cloud
    `GOOGLE_CLOUD_LOCATION`, domyślną nazwę dla usługi gdzie uruchomimy Bielika `BIELIK_SERVICE_NAME` oraz wersję Bielika z której będziemy korzystać `BIELIK_MODEL_NAME`
    
    ```bash
@@ -29,6 +29,14 @@ Przykładowy kod źródłowy pozwalający na:
    BIELIK_SERVICE_NAME="ollama-bielik-v3"
    BIELIK_MODEL_NAME="SpeakLeash/bielik-4.5b-v3.0-instruct:Q8_0"
    ```
+   >[!IMPORTANT]
+   >Jeżeli zmieniasz w `BIELIK_MODEL_NAME` domyślny model Bielika na inną wersję, to zaktualizuj tę informację również w pliku Dockerfile:
+   
+   ```dockerfile
+   ENV MODEL SpeakLeash/bielik-4.5b-v3.0-instruct:Q8_0
+   ```
+   
+   Wczytaj zmienne środowiskowe korzystając z podręcznego skryptu
    
    ```bash
    source reload-env.sh
@@ -41,13 +49,17 @@ gcloud run deploy $BIELIK_SERVICE_NAME --source ollama-bielik/ --region $GOOGLE_
 ### Jak sprawdzić, czy usługa działa?
 * Sprawdź w Google  Cloud console czy nowy serwis jest już dostępny
 * Sprawdź czy otwierając URL w przeglądarce zobaczysz informację: `Ollama is running`
+* Sprawdź przez API jakie modele są dostępne lokalnie na serwerze Ollama
+   ```bash
+   curl "${OLLAMA_URL}/api/tags"
+   ```
 * Wyślij zapytanie przez API
    ```bash
-   curl "${OLLAMA_URL}/api/generate" -d '{
-      "model": $BIELIK_MODEL_NAME,
-      "prompt": "Kto zabił smoka wawelskiego?",
-      "stream": false
-   }'
+   curl "${OLLAMA_URL}/api/generate" -d "{
+      \"model\": \"$BIELIK_MODEL_NAME\",
+      \"prompt\": \"Kto zabił smoka wawelskiego?\",
+      \"stream\": false
+   }"
    ```
 
 ## Pierwszy agent
