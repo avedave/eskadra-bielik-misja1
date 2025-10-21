@@ -88,19 +88,19 @@ Przypisz powyższy URL do zmiennej środowiskowej `OLLAMA_API_BASE` w pliku `.en
    source .venv/bin/activate
    ```
    
-7. Zainstaluj wymagane komponenty
+3. Zainstaluj wymagane komponenty
 
    ```bash
    pip install -r requirements.txt
    ```
    
-9. Uruchom agenta w konsoli **Cloud Shell**:
+4. Uruchom agenta w konsoli **Cloud Shell**:
 
    ```bash
     adk run content_creator
    ```
    
-10. Przetestuj agenta w środowisku Web
+5. Przetestuj agenta w środowisku Web
     1. Uruchom środowisko ADK Web
     ```bash
     adk web
@@ -108,16 +108,19 @@ Przypisz powyższy URL do zmiennej środowiskowej `OLLAMA_API_BASE` w pliku `.en
     2. Zmień port w **Web View** (jeżeli potrzeba, zazwyczaj jest to port 8000)
     3. Zaakceptuj zmiany poprzez: *Change and Preview*
 
-11. Deploy to Cloud Run:
-    ```bash
-    gcloud run deploy multi-tool-agent --source . --region europe-west1 --allow-unauthenticated --set-env-vars="GOOGLE_GENAI_USE_VERTEXAI=FALSE, GOOGLE_API_KEY="  --labels dev-tutorial=codelab-dos
-    ```
+6. Opublikuj do Cloud Run:
+   1. Skonfiguruj swój własny klucz Gemini API
+      *   Stwórz lub skopiuj istniejący Gemini API key z [Google AI Studio](https://ai.dev).
+      *   Dodaj wartość klucza ze swojego Gemini API key jako wartość zmiennej `GOOGLE_API_KEY` w pliku `.env`
+      *   Wczytaj zmienne środowiskowe ponownie: 
+          ```bash
+          source reload-env.sh
+          ```
+   2. Wykonaj komendę:
+      ```bash
+      gcloud run deploy multi-tool-agent --source . --region $GOOGLE_CLOUD_LOCATION --allow-unauthenticated --set-env-vars="OLLAMA_API_BASE=$OLLAMA_API_BASE, GOOGLE_GENAI_USE_VERTEXAI=$GOOGLE_GENAI_USE_VERTEXAI, GOOGLE_API_KEY=$GOOGLE_API_KEY"  --labels dev-tutorial=codelab-dos
+      ```
 
 ## Agenci wielo-modelowi
-
-Skonfiguruj swój własny klucz Gemini API
-
-*   Stwórz lub skopiuj istniejący Gemini API key z [Google AI Studio](https://ai.dev).
-*   Dodaj wartość klucza ze swojego Gemini API key jako wartość zmiennej `GOOGLE_API_KEY` w pliku `.env`
 
 Deployment documentation: https://google.github.io/adk-docs/deploy/cloud-run/#python---gcloud-cli
