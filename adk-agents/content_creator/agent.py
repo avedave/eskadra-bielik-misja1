@@ -3,11 +3,10 @@ from google.adk.agents import Agent, SequentialAgent, ParallelAgent
 from google.adk.models.lite_llm import LiteLlm
 
 BIELIK_MODEL_NAME = os.getenv("BIELIK_MODEL_NAME", "SpeakLeash/bielik-4.5b-v3.0-instruct:Q8_0")
-OLLAMA_BIELIK = LiteLlm(model=f"ollama_chat/{BIELIK_MODEL_NAME}")
 
 topic_identifier_agent = Agent(
     name="topic_identifier_agent",
-    model=OLLAMA_BIELIK,
+    model=LiteLlm(model=f"ollama_chat/{BIELIK_MODEL_NAME}"),
     description=(
         """Agent odpowiedzialny za zidentyfikowanie tematu którym interesuje się użytkownik."""),
     instruction=("""
@@ -21,7 +20,7 @@ topic_identifier_agent = Agent(
 
 topic_expander_agent = Agent(
     name="topic_expander_agent",
-    model=OLLAMA_BIELIK,
+    model=LiteLlm(model=f"ollama_chat/{BIELIK_MODEL_NAME}"),
     description=(
         """Agent odpowiedzialny za rozwinięcie tematu którym interesuje się użytkownik.
         Generuje listę ciekawych faktów związanych z tematem."""),
@@ -39,7 +38,7 @@ topic_expander_agent = Agent(
 
 children_audience_agent = Agent(
     name="children_audience_agent",
-    model=OLLAMA_BIELIK,
+    model=LiteLlm(model=f"ollama_chat/{BIELIK_MODEL_NAME}"),
     description=("""Agent odpowiedzialny za tworzenie treści skierowanych do dzieci."""),
     instruction=("""
                 Jesteś super przyjaznym i pomysłowym Botem Wyjaśniającym!
@@ -54,7 +53,7 @@ children_audience_agent = Agent(
 
 executive_audience_agent = Agent(
     name="executive_audience_agent",
-    model=OLLAMA_BIELIK,
+    model=LiteLlm(model=f"ollama_chat/{BIELIK_MODEL_NAME}"),
     description=("""Agent odpowiedzialny za tworzenie treści skierowanych do kadry menedżerskiej.
                  (W oparciu o przekazaną listę faktów)"""),
     instruction=("""
