@@ -5,7 +5,9 @@ Przykładowy kod źródłowy pozwalający na:
 * Skonfigurowanie prostych systemów agentowych przy wykorzystaniu [Agent Development Kit](https://google.github.io/adk-docs/)
 * Uruchomienie obu powyższych serwisów na [Cloud Run](https://cloud.google.com/run?hl=en)
 
-## Przygotowanie projektu Google Cloud
+
+
+## 1. Przygotowanie projektu Google Cloud
 
 1. Uzyskaj kredyt Cloud **OnRamp**, lub skonfiguruj płatności w projekcie Google Cloud
 
@@ -50,7 +52,10 @@ Przykładowy kod źródłowy pozwalający na:
    ```bash
    source reload-env.sh
    ```
-## Własna instancja Bielika
+
+
+
+## 2. Własna instancja Bielika
 
 Poniższa komenda stworzy nową usługę w Cloud Run o nazwie takiej jak wartość zmiennej `$BIELIK_SERVICE_NAME`. Na podstawie definicji w `ollama-bielik/Dockerfile` nardzędzie `gcloud` stworzy odpowiedni kontener, skonfiguruje usługę Ollama oraz wczyta odpowiednią wersję modelu Bielik.
 
@@ -88,7 +93,9 @@ Przypisz powyższy URL do zmiennej środowiskowej `OLLAMA_API_BASE` w pliku `.en
    }"
    ```
 
-## Konfiguracja systemów agentowych ADK
+
+
+## 3. Konfiguracja systemów agentowych ADK
 
 1. Skonfiguruj swój własny klucz Gemini API
    *   Stwórz lub skopiuj istniejący Gemini API key z [Google AI Studio](https://ai.dev).
@@ -119,16 +126,20 @@ Przypisz powyższy URL do zmiennej środowiskowej `OLLAMA_API_BASE` w pliku `.en
    pip install -r requirements.txt
    ```
 
-## System agentowy - Twórca treści (`content_creator`)
+
+
+## 4. Przykładowe systemy agentowe
+
+### 4.1 System agentowy - Twórca treści (`content_creator`)
 
 Ten prosty system agentowy, działający jedynie w oparciu o model Bielik, jest prostym przykładem wykorzystania [LLM Agents](https://google.github.io/adk-docs/agents/llm-agents/) oraz [Workflow Agents](https://google.github.io/adk-docs/agents/workflow-agents/) dostępnych w ADK. System ma na celu generowanie artykułów dla różnych grup docelowych (dzieci, kadra zarządzająca) w oparciu o temat zasugerowany przez użytkownika.
 
-`content_creator_agent` - Główny, sekwencyjny agent, uruchamia pod-agentów jeden po drugim
-`topic_identifier_agent` - Agent LLM odpowiedzialny za zidentyfikowanie tematu którym interesuje się użytkownik.
-`topic_expander_agent` - Agent LLM odpowiedzialny za rozwinięcie tematu. Generuje listę ciekawych faktów związanych z tematem.
-`authoring_agent` - Agent równoległy - uruchamia pod-agentów równolegle. Zawiera dwóch pod-agentów, po jednym na każdą grupę docelową
-`children_audience_agent` - Agent LLM odpowiedzialny za tworzenie treści skierowanych do dzieci.
-`executive_audience_agent` - Agent LLM odpowiedzialny za tworzenie treści skierowanych do kadry zarządzającej.
+- `content_creator_agent` - Główny, sekwencyjny agent, uruchamia pod-agentów jeden po drugim
+- `topic_identifier_agent` - Agent LLM odpowiedzialny za zidentyfikowanie tematu którym interesuje się użytkownik.
+- `topic_expander_agent` - Agent LLM odpowiedzialny za rozwinięcie tematu. Generuje listę ciekawych faktów związanych z tematem.
+- `authoring_agent` - Agent równoległy - uruchamia pod-agentów równolegle. Zawiera dwóch pod-agentów, po jednym na każdą grupę docelową
+- `children_audience_agent` - Agent LLM odpowiedzialny za tworzenie treści skierowanych do dzieci.
+- `executive_audience_agent` - Agent LLM odpowiedzialny za tworzenie treści skierowanych do kadry zarządzającej.
 
 ```mermaid
 graph TD
@@ -146,24 +157,77 @@ graph TD
 ```
 
 
-1. Upewnij się, że jesteś w katalogu `adk_agents`
+1. Upewnij się, że jesteś w katalogu `adk_agents` oraz że wszystkie zmienne środowiskowe są załadowane
 2. Uruchom agenta w konsoli **Cloud Shell** i rozpocznij interakcję
 
    ```bash
-    adk run content_creator
+    adk run content_creator/
    ```
-   
-10. Przetestuj agenta w środowisku Web
-    1. Uruchom środowisko ADK Web
+
+
+
+### 4.2 System agentowy - Przewodnik kulinarny (`culinary_guide`)
+
+Ten hybrydowy system agentowy, działający w oparciu o modele Gemini i Bielik, jest przykładem wykorzystania Agentów LLM ([LLM Agents](https://google.github.io/adk-docs/agents/llm-agents/)), funkcji-jako-narzędzi ([Function Tools](https://google.github.io/adk-docs/tools/function-tools/#function-tool)) oraz agentów-jako-narzędzi ([Agent-as-a-tTool](https://google.github.io/adk-docs/tools/function-tools/#agent-tool)) dostępnych w ADK.
+
+System ma na celu pełnienie roli międzynarodowego przewodnika kulinarnego, który deleguje zadania do wyspecjalizowanych pod-agentów lub narzędzi w zależności od kraju, o który pyta użytkownik.
+
+- `culinary_guide_agent` - Główny agent, który komunikuje się z użytkownikiem w języku angielskim. Jego zadaniem jest zrozumienie prośby o rekomendacje kulinarne, identyfikacja kraju i preferencji dietetycznych, a następnie delegowanie zadania do odpowiednich narzędzi.
+- `polish_expert_tool` - Narzędzie typu AgentTool, które opakowuje agenta polish_culinary_expert_agent, umożliwiając głównemu agentowi korzystanie z jego wyspecjalizowanych zdolności.
+- `polish_culinary_expert_agent` - Wyspecjalizowany Agent LLM oparty na modelu Bielik, ekspert w dziedzinie kuchni polskiej. Przyjmuje zapytania i odpowiada wyłącznie w języku polskim.
+- `german_food_tool` - Proste narzędzie oparte na funkcji Pythona, które dostarcza rekomendacji kulinarnych dla Niemiec w oparciu o zdefiniowaną logikę.
+
+```mermaid
+graph TD
+    subgraph Culinary Recommendation System
+        direction TB
+
+        %% Define the Root Agent
+        A[fa:fa-robot culinary_guide_agent]
+
+        %% Define the Tools
+        subgraph polish_expert_tool
+            direction TB
+            B[fa:fa-wrench AgentTool] --> C[fa:fa-robot polish_culinary_agent]
+        end
+
+        D[fa:fa-wrench german_food_tool]
+
+        %% Define the relationships
+        A --> B
+        A --> D
+    end
+```
+1. Upewnij się, że jesteś w katalogu `adk_agents` oraz że wszystkie zmienne środowiskowe są załadowane
+2. Uruchom agenta w konsoli **Cloud Shell** i rozpocznij interakcję
+
+   ```bash
+    adk run culinary_guide_agent/
+   ```
+
+
+
+## 5. Przetestuj systemy agentowe w środowisku Cloud Shell + Web
+
+1. Upewnij się, że jesteś w katalogu `adk_agents` oraz że wszystkie zmienne środowiskowe są załadowane
+2. Uruchom środowisko ADK Web
     ```bash
     adk web
     ```
-    2. Zmień port w **Web View** (jeżeli potrzeba, zazwyczaj jest to port 8000)
-    3. Zaakceptuj zmiany poprzez: *Change and Preview*
+3. Zmień port w **Web View** (jeżeli potrzeba, zazwyczaj jest to port 8000)
+4. Zaakceptuj zmiany poprzez: *Change and Preview*
+5. Z rozwijanego menu po lewej stronie ekranu wybierz system z którym chcesz pracować
 
-11. Uruchom system agentowy `content_creator` w Cloud Run
+
+
+## 6. Uruchom systemy agentowe w Cloud Run
+
+1. Upewnij się, że jesteś w katalogu `adk_agents` oraz że wszystkie zmienne środowiskowe są załadowane
     ```bash
-    gcloud run deploy content-creator-agent --source . --region europe-west1 --allow-unauthenticated --set-env-vars GOOGLE_CLOUD_LOCATION=europe-west1 --set-env-vars OLLAMA_API_BASE=$OLLAMA_URL --labels dev-tutorial=codelab-dos
+    gcloud run deploy adk-agents --source . --region $GOOGLE_CLOUD_LOCATION --allow-unauthenticated --set-env-vars GOOGLE_CLOUD_LOCATION=$GOOGLE_CLOUD_LOCATION --set-env-vars OLLAMA_API_BASE=$OLLAMA_API_BASE --labels dev-tutorial=codelab-dos-$BIELIK_EVENT_ID
     ```
+>[!CAUTION]
+>Flaga `--allow-unauthenticated` udostępnia usługę publicznie w internecie i każdy kto zna URL, może zaczać z niej korzystać. W środowisku produkcyjnym zazwyczaj trzeba tę flagę usunąć i odpowiednio skonfigurować reguły dostępu.
 
-Deployment documentation: https://google.github.io/adk-docs/deploy/cloud-run/#python---gcloud-cli
+2. Narzędzie `gcloud` stworzy kontener na podstawie konfiguracji zawartej w `adk-agents/Dockerfile` i uruchomi usługę w Cloud Run, podając URL pod którym serwis będzie dostępny
+3. Wywołaj otrzymany URL w przeglądarce WWW aby mieć dostęp do środowiska ADK Web

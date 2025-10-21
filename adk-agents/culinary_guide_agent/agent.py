@@ -6,6 +6,45 @@ from google.adk.models.lite_llm import LiteLlm
 BIELIK_MODEL_NAME = os.getenv("BIELIK_MODEL_NAME", "SpeakLeash/bielik-4.5b-v3.0-instruct:Q8_0")
 GEMINI_MODEL_NAME="gemini-2.5-flash"
 
+def german_food_tool(diet: str) -> dict:
+    """Retrieves food recommendations from Germany based on dietary restrictions or preferences.
+
+    Args:
+        diet (str): Dietary restrictions or preferences.
+
+    Returns:
+        dict: status and result or error msg.
+    """
+    if diet.lower() == "vegan":
+        return {
+            "status": "success",
+            "result": (
+                """
+                    **Name des Gerichts:**
+                        Schwäbische Linsen mit Spätzle
+                    **Beschreibung:**
+                        Ein herzhafter und wärmender Eintopf aus braunen Linsen,
+                        verfeinert mit geräuchertem Tofu für eine deftige, "speckige" Note,
+                        klassischem Wurzelgemüse und einem Schuss Essig für die typisch
+                        schwäbische Säure. Er wird traditionell mit hausgemachten Spätzle serviert,
+                        die in dieser veganen Variante ohne Eier zubereitet werden.
+                        Es ist ein nahrhaftes Wohlfühlessen, perfekt für die kältere Jahreszeit.
+                    **Hauptzutaten:**
+                        Linsen, Gemüse: Zwiebeln, Karotten (Möhren),
+                        Sellerie (Knollensellerie), Rauchtofu,
+                        Säuerung: Essig (typischerweise Wein- oder Branntweinessig),
+                        Spätzle: Spätzleteig aus Mehl, Wasser,
+                        etwas Öl und Kurkuma (für die Farbe) anstelle von Eiern,
+                        Gewürze: Lorbeerblatt, Majoran, Gemüsebrühe, Pfeffer und Salz
+                """
+            ),
+        }
+    else:
+        return {
+            "status": "error",
+            "error_message": f"German food recommendation for: '{diet}' is not available.",
+        }
+
 polish_culinary_expert_agent = Agent(
     name="polish_culinary_agent",
     model=LiteLlm(model=f"ollama_chat/{BIELIK_MODEL_NAME}"),
@@ -62,7 +101,7 @@ root_agent = Agent(
     description=(
         """A top-level agent that understands user requests for international culinary recommendations.
         It identifies the target country and user's dietary preferences or restrictions,
-        then delegates the detailed dish discovery to a region-specific culinary sub-agent.
+        then delegates the detailed dish discovery to a region-specific culinary sub-agent or tool.
         It also handles the translation of the query to the local language
         and the final presentation of the results back to the user in English.
         """
@@ -121,5 +160,5 @@ root_agent = Agent(
             By following these instructions, you will act as an intelligent and efficient coordinator, leveraging the specialized knowledge of regional sub-agents to provide the user with authentic and relevant culinary recommendations.
         """
     ),
-    tools=[polish_expert_tool]
+    tools=[polish_expert_tool, german_food_tool]
 )
