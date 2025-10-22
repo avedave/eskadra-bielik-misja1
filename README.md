@@ -2,10 +2,12 @@
 Przykładowy kod źródłowy pozwalający na:
 
 * Skonfigurowanie własnej instancji modelu [Bielik](https://ollama.com/SpeakLeash/bielik-4.5b-v3.0-instruct) w oparciu o [Ollama](https://ollama.com/)
+
 * Skonfigurowanie prostych systemów agentowych przy wykorzystaniu [Agent Development Kit](https://google.github.io/adk-docs/)
+
 * Uruchomienie obu powyższych serwisów na [Cloud Run](https://cloud.google.com/run?hl=en)
 
-
+  
 
 ## 1. Przygotowanie projektu Google Cloud
 
@@ -14,6 +16,8 @@ Przykładowy kod źródłowy pozwalający na:
 2. Przejdź do **Google Cloud Console**: [console.cloud.google.com](https://console.cloud.google.com)
 
 3. Stwórz nowy projekt Google Cloud i wybierz go aby był aktywny
+   >[!TIP]
+   >Możesz sprawdzić dostępność kredytów OnRamp wybierając z menu po lewej stronie: Billing / Credits
 
 4. Otwórz Cloud Shell ([dokumentacja](https://cloud.google.com/shell/docs))
 
@@ -28,11 +32,14 @@ Przykładowy kod źródłowy pozwalający na:
    mv .env.sample .env
    ```
 
-7. Zaktualizuj odpowiednie na tym etapie zmienne środowiskowe w pliku `.env`
+7. Zaktualizuj odpowiednie na tym etapie zmienne środowiskowe w pliku `.env`     
       * `BIELIK_EVENT_ID`- Identyfikator warsztatów zgodny z kodem użytym w OnRamp Credits
       * `GOOGLE_CLOUD_LOCATION`- zmienną definiującą region Google Cloud
       * `BIELIK_SERVICE_NAME` - domyślną nazwę dla usługi gdzie uruchomimy Bielika
       * `BIELIK_MODEL_NAME` - wersję Bielika z której będziemy korzystać 
+
+   >[!TIP]
+   >W terminalu `Cloud Shell` dostępny jest edytor po wybraniu opcji *Open Editor*
 
    ```bash
    BIELIK_EVENT_ID="bielik-trainers"
@@ -41,14 +48,14 @@ Przykładowy kod źródłowy pozwalający na:
    BIELIK_MODEL_NAME="SpeakLeash/bielik-4.5b-v3.0-instruct:Q8_0"
    ```
    >[!IMPORTANT]
-   >Jeżeli zmieniasz w `BIELIK_MODEL_NAME` domyślny model Bielika na inną wersję, to zaktualizuj tę informację również w pliku `ollama-bielik/Dockerfile`:
-   
+   >Jeżeli zmieniasz w `BIELIK_MODEL_NAME` domyślny model Bielika na inną wersję, to zaktualizuj tę informację również w pliku `ollama-bielik/Dockerfile`
+
    ```dockerfile
    ENV MODEL SpeakLeash/bielik-4.5b-v3.0-instruct:Q8_0
    ```
-   
-   Wczytaj zmienne środowiskowe korzystając z podręcznego skryptu
-   
+
+8. Wczytaj zmienne środowiskowe korzystając z podręcznego skryptu
+
    ```bash
    source reload-env.sh
    ```
@@ -57,27 +64,37 @@ Przykładowy kod źródłowy pozwalający na:
 
 ## 2. Własna instancja Bielika
 
-Poniższa komenda stworzy nową usługę w Cloud Run o nazwie takiej jak wartość zmiennej `$BIELIK_SERVICE_NAME`. Na podstawie definicji w `ollama-bielik/Dockerfile` nardzędzie `gcloud` stworzy odpowiedni kontener, skonfiguruje usługę Ollama oraz wczyta odpowiednią wersję modelu Bielik.
+1. Ustal domyślne konto serwisowe dla wybranego projektu `default service account`
+   ```bash
+   gcloud builds get-default-service-account
+   ```
 
-```bash
-gcloud run deploy $BIELIK_SERVICE_NAME --source ollama-bielik/ --region $GOOGLE_CLOUD_LOCATION --concurrency 7 --cpu 8 --set-env-vars OLLAMA_NUM_PARALLEL=4 --gpu 1 --gpu-type nvidia-l4 --max-instances 1 --memory 16Gi --allow-unauthenticated --no-cpu-throttling --no-gpu-zonal-redundancy --timeout 600 --labels dev-tutorial=codelab-dos-$BIELIK_EVENT_ID
-```
+2. Poniższa komenda stworzy nową usługę w Cloud Run o nazwie takiej jak wartość zmiennej `$BIELIK_SERVICE_NAME`. Na podstawie definicji w `ollama-bielik/Dockerfile` nardzędzie `gcloud` stworzy odpowiedni kontener, skonfiguruje usługę Ollama oraz wczyta odpowiednią wersję modelu Bielik.
 
->[!CAUTION]
->Flaga `--allow-unauthenticated` udostępnia usługę publicznie w internecie i każdy kto zna URL, może zaczać z niej korzystać. W środowisku produkcyjnym zazwyczaj trzeba tę flagę usunąć i odpowiednio skonfigurować reguły dostępu.
+   ```bash
+   gcloud run deploy $BIELIK_SERVICE_NAME --source ollama-bielik/ --region $GOOGLE_CLOUD_LOCATION --concurrency 7 --cpu 8 --set-env-vars OLLAMA_NUM_PARALLEL=4 --gpu 1 --gpu-type nvidia-l4 --max-instances 1 --memory 16Gi --allow-unauthenticated --no-cpu-throttling --no-gpu-zonal-redundancy --timeout 600 --labels dev-tutorial=codelab-dos-$BIELIK_EVENT_ID
+   ```
 
-Uruchom poniższą komendę, aby sprawdzić pod jakim URL jest dostępny Bielik
+   >[!CAUTION]
+   >Flaga `--allow-unauthenticated` udostępnia usługę publicznie w internecie i każdy kto zna URL, może zaczać z niej korzystać. W środowisku produkcyjnym zazwyczaj trzeba tę flagę usunąć i odpowiednio skonfigurować reguły dostępu.
 
-```bash
-gcloud run services describe $BIELIK_SERVICE_NAME --region=$GOOGLE_CLOUD_LOCATION --format='value(status.url)'
-```
+3. Uruchom poniższą komendę, aby sprawdzić pod jakim URL jest dostępny Bielik
 
-Przypisz powyższy URL do zmiennej środowiskowej `OLLAMA_API_BASE` w pliku `.env` i następnie wczytaj zmienne środowiskowe ponownie:
+   ```bash
+   gcloud run services describe $BIELIK_SERVICE_NAME --region=$GOOGLE_CLOUD_LOCATION --format='value(status.url)'
+   ```
+   >[!TIP]
+   >Answer *Yes* if the system asks you to enable necessary APIs and create Artifact Registry
+
+4. Przypisz powyższy URL do zmiennej środowiskowej `OLLAMA_API_BASE` w pliku `.env` i następnie wczytaj zmienne środowiskowe ponownie:
  ```bash
    source reload-env.sh
  ```
 
-### Jak sprawdzić, czy usługa działa?
+
+
+### Jak sprawdzić, czy nasz Bielik jest gotowy?
+
 * Sprawdź w Google Cloud console czy nowy serwis jest już dostępny
 * Sprawdź czy otwierając URL w przeglądarce zobaczysz informację: `Ollama is running`
 * Sprawdź przez API jakie modele są dostępne lokalnie na serwerze Ollama
@@ -224,7 +241,7 @@ graph TD
 
 1. Upewnij się, że jesteś w katalogu `adk_agents` oraz że wszystkie zmienne środowiskowe są załadowane
     ```bash
-    gcloud run deploy adk-agents --source . --region $GOOGLE_CLOUD_LOCATION --allow-unauthenticated --set-env-vars GOOGLE_CLOUD_LOCATION=$GOOGLE_CLOUD_LOCATION --set-env-vars OLLAMA_API_BASE=$OLLAMA_API_BASE --labels dev-tutorial=codelab-dos-$BIELIK_EVENT_ID
+    gcloud run deploy adk-agents --source . --region $GOOGLE_CLOUD_LOCATION --allow-unauthenticated --set-env-vars GOOGLE_CLOUD_LOCATION=$GOOGLE_CLOUD_LOCATION --set-env-vars OLLAMA_API_BASE=$OLLAMA_API_BASE --set-env-vars GOOGLE_API_KEY=$GOOGLE_API_KEY --labels dev-tutorial=codelab-dos-$BIELIK_EVENT_ID
     ```
 >[!CAUTION]
 >Flaga `--allow-unauthenticated` udostępnia usługę publicznie w internecie i każdy kto zna URL, może zaczać z niej korzystać. W środowisku produkcyjnym zazwyczaj trzeba tę flagę usunąć i odpowiednio skonfigurować reguły dostępu.
