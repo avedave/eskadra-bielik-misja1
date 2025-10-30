@@ -16,8 +16,8 @@ Przykładowy kod źródłowy pozwalający na:
 2. Przejdź do **Google Cloud Console**: [console.cloud.google.com](https://console.cloud.google.com)
 
 3. Stwórz nowy projekt Google Cloud i wybierz go aby był aktywny
-   >[!TIP]
-   >Możesz sprawdzić dostępność kredytów OnRamp wybierając z menu po lewej stronie: Billing / Credits
+>[!TIP]
+>Możesz sprawdzić dostępność kredytów OnRamp wybierając z menu po lewej stronie: Billing / Credits
 
 4. Otwórz Cloud Shell ([dokumentacja](https://cloud.google.com/shell/docs))
 
@@ -38,17 +38,17 @@ Przykładowy kod źródłowy pozwalający na:
       * `BIELIK_SERVICE_NAME` - domyślną nazwę dla usługi gdzie uruchomimy Bielika
       * `BIELIK_MODEL_NAME` - wersję Bielika z której będziemy korzystać 
 
-   >[!TIP]
-   >W terminalu `Cloud Shell` dostępny jest edytor po wybraniu opcji *Open Editor*
+>[!TIP]
+>W terminalu `Cloud Shell` dostępny jest edytor po wybraniu opcji *Open Editor*
 
    ```bash
-   BIELIK_EVENT_ID="bielik-trainers"
+   BIELIK_EVENT_ID="<IDENTYFIKATOR>"
    GOOGLE_CLOUD_LOCATION="europe-west1"  # Europe (Belgium)
    BIELIK_SERVICE_NAME="ollama-bielik-v3"
    BIELIK_MODEL_NAME="SpeakLeash/bielik-4.5b-v3.0-instruct:Q8_0"
    ```
-   >[!IMPORTANT]
-   >Jeżeli zmieniasz w `BIELIK_MODEL_NAME` domyślny model Bielika na inną wersję, to zaktualizuj tę informację również w pliku `ollama-bielik/Dockerfile`
+>[!IMPORTANT]
+>Jeżeli zmieniasz w `BIELIK_MODEL_NAME` domyślny model Bielika na inną wersję, to zaktualizuj tę informację również w pliku `ollama-bielik/Dockerfile`
 
    ```dockerfile
    ENV MODEL SpeakLeash/bielik-4.5b-v3.0-instruct:Q8_0
@@ -75,21 +75,21 @@ Przykładowy kod źródłowy pozwalający na:
    gcloud run deploy $BIELIK_SERVICE_NAME --source ollama-bielik/ --region $GOOGLE_CLOUD_LOCATION --concurrency 7 --cpu 8 --set-env-vars OLLAMA_NUM_PARALLEL=4 --gpu 1 --gpu-type nvidia-l4 --max-instances 1 --memory 16Gi --allow-unauthenticated --no-cpu-throttling --no-gpu-zonal-redundancy --timeout 600 --labels dev-tutorial=codelab-dos-$BIELIK_EVENT_ID
    ```
 
-   >[!CAUTION]
-   >Flaga `--allow-unauthenticated` udostępnia usługę publicznie w internecie i każdy kto zna URL, może zaczać z niej korzystać. W środowisku produkcyjnym zazwyczaj trzeba tę flagę usunąć i odpowiednio skonfigurować reguły dostępu.
+>[!CAUTION]
+>Flaga `--allow-unauthenticated` udostępnia usługę publicznie w internecie i każdy kto zna URL, może zaczać z niej korzystać. W środowisku produkcyjnym zazwyczaj trzeba tę flagę usunąć i odpowiednio skonfigurować reguły dostępu.
 
 3. Uruchom poniższą komendę, aby sprawdzić pod jakim URL jest dostępny Bielik
 
    ```bash
    gcloud run services describe $BIELIK_SERVICE_NAME --region=$GOOGLE_CLOUD_LOCATION --format='value(status.url)'
    ```
-   >[!TIP]
-   >Answer *Yes* if the system asks you to enable necessary APIs and create Artifact Registry
+>[!TIP]
+>Answer *Yes* if the system asks you to enable necessary APIs and create Artifact Registry
 
 4. Przypisz powyższy URL do zmiennej środowiskowej `OLLAMA_API_BASE` w pliku `.env` i następnie wczytaj zmienne środowiskowe ponownie:
- ```bash
+   ```bash
    source reload-env.sh
- ```
+   ```
 
 
 
