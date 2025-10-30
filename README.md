@@ -84,7 +84,7 @@ Przykładowy kod źródłowy pozwalający na:
    gcloud run services describe $BIELIK_SERVICE_NAME --region=$GOOGLE_CLOUD_LOCATION --format='value(status.url)'
    ```
 >[!TIP]
->Answer *Yes* if the system asks you to enable necessary APIs and create Artifact Registry
+>Odpowiedz twierdząco, jeżeli system spyta o włączenie odpowiednich API oraz stworzenie rejestru artefaktów
 
 4. Przypisz powyższy URL do zmiennej środowiskowej `OLLAMA_API_BASE` w pliku `.env` i następnie wczytaj zmienne środowiskowe ponownie:
    ```bash
